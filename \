@@ -1,0 +1,79 @@
+#include"tranfile.h"
+typedef struct information
+{
+	unsigned char identidy;
+	mode_t mode;
+	off_t filelength;
+	void*filestr;
+	char*filepath;
+        struct timespec time;
+	unsigned long long restart,relength;
+}information;
+static httpparase*parase;
+static filedata*data;
+static filemeta*meta;
+static information alldata;
+
+int fileinit(unsigned char _identity,char*_filepath)
+{
+    data.identidy=_identity;
+    int fd,length,ret,conffd;
+    parase=getparase(FILEMETA);
+    meta=(filemeta*)(parase->parase);
+    parase=getparase(FILEDATA);
+    data=(filedata*)(parase->parase);
+    if(identidy==HTTPRETURN)
+    {
+       fd=open(filepath,O_RDONLY);
+       if(fd<0)
+       {
+	       return FAIL;
+       }
+       struct stat buf;
+       if(stat(_filepath,&buf)<0)
+       {
+	       return FAIL;
+       }
+       alldata.mode=buf.st_mode;
+       alldata.time=buf.st_ctime;
+       alldata.filelength=buf.st_size;
+    }
+    else
+    {
+        data->type|=HTTPREQUEST|FILEMETA;
+	data->type&=(~HTTPRETURN)&(~FILEDATA);
+	if(access(CONFPATH,F_OK)!=SUCCEED)
+	{
+		if(mkdir(CONFPATH,MODE)!=SUCCEED)
+		{
+			fprintf(stderr,"create %s fail\n",CONFPATH);
+			return FAIL;
+		}
+	}
+	if((ret=sendhttp(SUCCEED))!=SUCCEED||(ret=parsinghttp())!=SUCCEED)
+	{
+		return ret;
+	}
+	if(access(_filepath,F_OK)!=SUCCEED)
+	{
+		if((fd=open(_filepath,O_CREAT,meta->mode))!=SUCCEED)
+		{
+			fprintf(stderr,"create %s fail\n",_filepath);
+			return FAIL;
+		}
+                if((conffd=open(CONFPATH _filepath ".conf",O_CREAT|O_RDWR,MODE))!=SUCCEED)
+		{
+			fprintf(stderr,"create %s fail\n",CONFPATH _filepath
+		}
+	}
+
+    }
+    length=strlen(_filepath)+1;
+    alldata->filepath=(char*)malloc(sizeof(char)*length);
+    if(alldata->filepath==NULL)
+    {
+	    fprintf(stderr,"malloc fail\n");
+	    return NULL;
+    }
+    return SUCCEED;
+}
